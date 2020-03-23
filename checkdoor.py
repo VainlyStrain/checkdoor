@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 
+# -------------------------------------
+# checkdoor ~ VainlyStrain
+# simple sudo backdoor hunter in Python
+# -------------------------------------
+
 import os, sys
 import re
 import subprocess
 
+#some colors
 RB = '\033[48;2;58;49;58m'
 RC = '\033[0m\033[38;2;58;49;58m\033[3m'
 RD = '\033[0m\033[38;2;58;49;58m'
@@ -11,8 +17,9 @@ R = '\033[0m\033[38;2;58;49;58m\033[1m'
 WB = '\033[48;2;255;255;255m\033[38;2;58;49;58m\033[1m'
 G = '\033[0m\033[48;2;85;72;85m\033[38;2;225;214;225m'
 
-version = "1.5.0"
+version = "1.5.1"
 
+#more colors
 class color:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
@@ -21,32 +28,16 @@ class color:
 
 C = color.END + color.BOLD
 
+#helper script executed by subprocess
 helper = os.path.dirname(os.path.realpath(__file__)) + "/phase1.sh"
-helper2 = os.path.dirname(os.path.realpath(__file__)) + "/phase3.sh"
 
+#has anything suspicious been detected?
 globalfail = False
 
+#display stuff
 os.system("clear")
-'''
-print("""
-____, __
-   + ;  
-   .:,
-     ’  
-    .   
-    + ; 
-    ;.  
-     ;  
-     ;  
-     ’  
 
-
-  {0}┌─[{1}i{0}]─[{1}{3}{4}
-  {0}└──╼ {2}checkdoor{1}-scan{4}
-""".format(color.END+RB, G, WB, version, color.END))
-'''
-
-vaile = '''{}                      |
+vaile = '''{0}                      |
                       :   
                       |   
                       .   
@@ -54,20 +45,20 @@ vaile = '''{}                      |
                       .   
 ____, __             .|   
    + ;               .|   
-   .{}:,                       
+   .{1}:,                       
      ’                      
     .              /      
     + ;           :,      
     ;.           /,       
-   {}  ;          /;' ;    
-     ;         /;{}|{}  : ^  
-     ’      / {}:{}  ;.’  °   
+   {0}  ;          /;' ;    
+     ;         /;{2}|{0}  : ^  
+     ’      / {2}:{0}  ;.’  °   
           '/; \\           
-         ./ '. \\      {}|{}
+         ./ '. \\      {2}|{0}
           '.  ’·    __\\,_
-         {}   '.      {}\\{}`{};{}{} 
-              \\      {}\\ {}
-              .\\.     {}V{}   
+         {1}   '.      {0}\\{1}`{2};{0}{1} 
+              \\      {0}\\ {1}
+              .\\.     {0}V{1}   
                 \\.               
                  .,.      
                    .'.    
@@ -75,11 +66,14 @@ ____, __             .|
                     .|.   
                      | .  
                      .    
-'''.format(color.END, color.BOLD, color.END, color.CURSIVE, color.END, color.CURSIVE, color.END, color.CURSIVE, color.END, color.BOLD, color.END, color.BOLD, color.CURSIVE, color.END, color.BOLD, color.END, color.BOLD, color.END, color.BOLD)
+'''.format(color.END, color.BOLD, color.CURSIVE)
 
 print(vaile)
 
-#print("[i] Checkdoor v{} - scan".format(version))
+'''
+Phase 1: searches for aliases and functions in local bash files using regex
+if you are not using bash, modify the phase1.sh script to your respective config files
+'''
 print("{}Phase 1: {}maliciovs aliases{}".format(RC, color.END+RB, color.END))
 
 response = subprocess.check_output(["bash",helper])
@@ -110,6 +104,12 @@ if fail:
 else:
     print(RD+"[+]"+C+" Clean."+color.END)
 
+
+'''
+Phase 2: checks if a malicious binary has been appended at the beginning of $PATH,
+thus being executed instead of the real sude
+uses the which command
+'''
 print("{}Phase 2: {}$PATH hijacking{}".format(RC, color.END+RB, color.END))
 response = subprocess.check_output(["which","sudo"])
 path = response.decode("utf-8").strip()
@@ -119,11 +119,24 @@ if path != "/usr/bin/sudo":
 else:
     print(RD+"[+]"+C+" Clean."+color.END)
     
-#print("Phase 3: Owner&permissions")
-#path = path.replace("sudo", "")
 
+'''
+Phase 3: checks if the binary's owner & group is root and if the permissions are
+correct
+'''
+print("{}Phase 3: {}Owner&permissions{}".format(RC, color.END+RB, color.END))
+response = subprocess.check_output(["ls","-l",path])
+response = response.decode("utf-8")
+parsed = re.split("\s+", response)
+if parsed[0] != "---s--x--x." and parsed[2] != "root" and parsed[3] != "root":
+    print("{}[!]{} File permissions and ownership do not match expectations.\n{}".format(RD, color.END, path))
+    print(response)
+    globalfail = True
+else:
+    print(RD+"[+]"+C+" Clean."+color.END)
 
 print("Done.")
 
+#exit with failure when backdoor found. useful for && concatenation
 if globalfail:
     sys.exit(1)
