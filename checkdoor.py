@@ -107,7 +107,7 @@ else:
 
 '''
 Phase 2: checks if a malicious binary has been appended at the beginning of $PATH,
-thus being executed instead of the real sude
+thus being executed instead of the real sudo
 uses the which command
 '''
 print("{}Phase 2: {}$PATH hijacking{}".format(RC, color.END+RB, color.END))
