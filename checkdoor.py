@@ -129,8 +129,7 @@ response = subprocess.check_output(["ls","-l",path])
 response = response.decode("utf-8")
 parsed = re.split("\s+", response)
 if parsed[0] != "---s--x--x." and parsed[2] != "root" and parsed[3] != "root":
-    print("{}[!]{} File permissions and ownership do not match expectations.\n{}".format(RD, color.END, path))
-    print(response)
+    print("{}[!]{} File permissions and ownership do not match expectations.\n{}".format(RD, color.END, response))
     globalfail = True
 else:
     print(RD+"[+]"+C+" Clean."+color.END)
