@@ -32,12 +32,13 @@ G = '\033[0m\033[48;2;85;72;85m\033[38;2;225;214;225m'
 
 version = "1.5.1"
 
-# more colors
+
 class color:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
     CURSIVE = '\033[3m'
     END = '\033[0m'
+
 
 C = color.END + color.BOLD
 
@@ -100,7 +101,7 @@ if "sudo()" in parsed:
     print("{}[!]{} Potentially maliciovs alias detected\n".format(RD, color.END))
     alias = re.split("sudo\s*\(\)", response)[1].split("}")[0]
     lines = alias.split("\n")
-    print("  {}sudo(){}".format(WB,color.END) + lines[0])
+    print("  {}sudo(){}".format(WB, color.END) + lines[0])
     for line in lines[1::]:
         if line != "":
             line = line.replace("\'", "'")
@@ -128,7 +129,7 @@ uses the which command
 '''
 if verbose:
     print("{}Phase 2: {}$PATH hijacking{}".format(RC, color.END + RB, color.END))
-response = subprocess.check_output(["which","sudo"])
+response = subprocess.check_output(["which", "sudo"])
 path = response.decode("utf-8").strip()
 if path != "/usr/bin/sudo":
     print("{}[!]{} Potentially maliciovs path detected!\n{}".format(RD, color.END, path))
@@ -143,7 +144,7 @@ correct
 '''
 if verbose:
     print("{}Phase 3: {}Owner&permissions{}".format(RC, color.END + RB, color.END))
-response = subprocess.check_output(["ls","-l",path])
+response = subprocess.check_output(["ls", "-l", path])
 response = response.decode("utf-8")
 parsed = re.split("\s+", response)
 if parsed[0] != "---s--x--x." and parsed[2] != "root" and parsed[3] != "root":
