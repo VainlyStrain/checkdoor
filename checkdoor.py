@@ -95,7 +95,7 @@ if verbose:
 
 response = subprocess.check_output(["bash", helper])
 response = response.decode("utf-8")
-parsed = response.replace(" ", "")
+parsed = response.replace(" ", "").lower()
 fail = False
 if "sudo()" in parsed:
     print("{}[!]{} Potentially maliciovs alias detected\n".format(RD, color.END))
